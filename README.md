@@ -55,5 +55,4 @@ Todo el sistema se levanta con un solo comando:
 
 ```bash
 docker-compose up --build
-
 ```
