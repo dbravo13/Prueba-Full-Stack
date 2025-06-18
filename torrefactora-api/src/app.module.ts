@@ -27,6 +27,15 @@ import { StatusModule } from './status/status.module';
       database: process.env.DATABASE_NAME || 'torrefactora',
       entities: [Task, Subtask, Status, Priority],
       synchronize: true,
+      ssl: process.env.POSTGRES_SSL === 'true',
+      extra: {
+        ssl:
+          process.env.POSTGRES_SSL === 'true'
+            ? {
+                rejectUnauthorized: false,
+              }
+            : null,
+      },
     }),
     TasksModule,
     SubtasksModule,
