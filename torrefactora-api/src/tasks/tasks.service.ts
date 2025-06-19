@@ -63,7 +63,6 @@ export class TasksService {
     const task = await this.tasksRepository.findOne({ where: { id } });
     if (!task) throw new Error(`Task con id ${id} no encontrada`);
 
-    console.log(data);
     if (data.priorityId) {
       const priority = await this.priorityRepository.findOne({
         where: { id: data.priorityId },
@@ -89,7 +88,6 @@ export class TasksService {
       beginDate: data.beginDate ?? task.beginDate,
       endDate: data.endDate ?? task.endDate,
     });
-    console.log(task);
     return this.tasksRepository.save(task);
   }
 
