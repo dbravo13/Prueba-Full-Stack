@@ -5,6 +5,7 @@ import { Task } from './entities/task.entity';
 import { Status } from 'src/status/entities/status.entity';
 import { Priority } from 'src/priority/entities/priority.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -58,9 +59,38 @@ export class TasksService {
     });
   }
 
-  async update(id: number, data: Partial<Task>) {
-    await this.tasksRepository.update(id, data);
-    return this.findOne(id);
+  async update(id: number, data: UpdateTaskDto) {
+    const task = await this.tasksRepository.findOne({ where: { id } });
+    if (!task) throw new Error(`Task con id ${id} no encontrada`);
+
+    console.log(data);
+    if (data.priorityId) {
+      const priority = await this.priorityRepository.findOne({
+        where: { id: data.priorityId },
+      });
+      if (!priority)
+        throw new Error(`Priority con id ${data.priorityId} no encontrada`);
+      task.priority = priority;
+    }
+
+    if (data.statusId) {
+      const status = await this.statusRepository.findOne({
+        where: { id: data.statusId },
+      });
+      if (!status)
+        throw new Error(`Status con id ${data.statusId} no encontrada`);
+      task.status = status;
+    }
+
+    Object.assign(task, {
+      nombre: data.nombre ?? task.nombre,
+      descripcion: data.descripcion ?? task.descripcion,
+      duracion: data.duracion ?? task.duracion,
+      beginDate: data.beginDate ?? task.beginDate,
+      endDate: data.endDate ?? task.endDate,
+    });
+    console.log(task);
+    return this.tasksRepository.save(task);
   }
 
   remove(id: number) {
@@ -69,18 +99,21 @@ export class TasksService {
 
   async getDashboard() {
     const tareas: Task[] = await this.tasksRepository.find({
-      relations: ['subtareas', 'priority'],
+      relations: ['subtareas', 'priority', 'status'],
     });
 
     const prioridadValor: Record<string, number> = {
-      Urgente: 1,
-      Normal: 2,
-      Bajo: 3,
+      Urgente: 0,
+      Normal: 1,
+      Bajo: 2,
     };
 
-    const ordenadas = tareas.sort((a, b) => {
-      const prioridadA = prioridadValor[a.priority?.name ?? 'Normal'];
-      const prioridadB = prioridadValor[b.priority?.name ?? 'Normal'];
+    const activas = tareas.filter((t) => t.status?.name !== 'Terminada');
+    const terminadas = tareas.filter((t) => t.status?.name === 'Terminada');
+
+    const activasOrdenadas = activas.sort((a, b) => {
+      const prioridadA = prioridadValor[a.priority?.name] ?? Infinity;
+      const prioridadB = prioridadValor[b.priority?.name] ?? Infinity;
 
       if (prioridadA !== prioridadB) {
         return prioridadA - prioridadB;
@@ -89,6 +122,6 @@ export class TasksService {
       return a.duracion - b.duracion;
     });
 
-    return ordenadas;
+    return [...activasOrdenadas, ...terminadas];
   }
 }

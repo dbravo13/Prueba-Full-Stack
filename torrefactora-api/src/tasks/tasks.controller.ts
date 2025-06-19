@@ -6,11 +6,12 @@ import {
   Param,
   Delete,
   Put,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @ApiTags('Tareas')
 @Controller('tasks')
@@ -60,8 +61,8 @@ export class TasksController {
   @ApiOperation({ summary: 'Actualizar una tarea por su ID' })
   @ApiParam({ name: 'id', description: 'ID de la tarea', type: Number })
   @ApiResponse({ status: 200, description: 'Tarea actualizada' })
-  update(@Param('id') id: string, @Body() body: Partial<Task>) {
-    return this.tasksService.update(+id, body);
+  update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateTaskDto) {
+    return this.tasksService.update(id, data);
   }
 
   @Delete(':id')
