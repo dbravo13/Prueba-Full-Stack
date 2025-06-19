@@ -9,8 +9,13 @@ import { Tag } from "antd";
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
 
+  const fetchTasks = async () => {
+    const res = await api.get("/tasks/dashboard");
+    setTasks(res.data);
+  };
+
   useEffect(() => {
-    api.get("/tasks/dashboard").then((res) => setTasks(res.data));
+    fetchTasks();
   }, []);
 
   const cardColors = [
@@ -102,8 +107,8 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-12 flex flex-col gap-6">
-        <CreateTaskModal />
-        <DashboardTable />
+        <CreateTaskModal onTaskCreated={fetchTasks} />
+        <DashboardTable onTasksUpdated={fetchTasks} />
       </div>
     </main>
   );

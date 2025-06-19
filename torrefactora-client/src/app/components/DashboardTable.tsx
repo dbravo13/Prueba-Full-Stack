@@ -20,7 +20,11 @@ import { useEffect, useState } from "react";
 import EditTaskModal from "./EditTaskModal";
 import api from "../lib/api";
 
-export default function DashboardTable() {
+export default function DashboardTable({
+  onTasksUpdated,
+}: {
+  onTasksUpdated: () => void;
+}) {
   const [tasks, setTasks] = useState<any[]>([]);
   const [newSubtaskName, setNewSubtaskName] = useState("");
   const [activeTaskId, setActiveTaskId] = useState<number | null>(null);
@@ -284,6 +288,7 @@ export default function DashboardTable() {
         onClose={() => setIsModalVisible(false)}
         onSave={() => {
           fetchTasks();
+          onTasksUpdated();
           setIsModalVisible(false);
         }}
       />

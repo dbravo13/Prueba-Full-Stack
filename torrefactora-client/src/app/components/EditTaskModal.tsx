@@ -34,14 +34,32 @@ export default function EditTaskModal({ visible, task, onClose, onSave }: any) {
     }
   }, [task, form]);
 
+  const prioridadMap: Record<string, number> = {
+    Urgente: 1,
+    Normal: 2,
+    Bajo: 3,
+  };
+
+  const estadoMap: Record<string, number> = {
+    Iniciada: 1,
+    "En Proceso": 2,
+    Terminada: 3,
+  };
+
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+
       await api.put(`/tasks/${task.id}`, {
-        ...values,
+        nombre: values.nombre,
+        descripcion: values.descripcion,
+        duracion: values.duracion,
         beginDate: values.beginDate?.toISOString(),
         endDate: values.endDate?.toISOString(),
+        priorityId: prioridadMap[values.prioridad],
+        statusId: estadoMap[values.estado],
       });
+
       message.success("Tarea actualizada");
       onSave();
       onClose();
