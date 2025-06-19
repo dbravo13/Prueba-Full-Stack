@@ -15,7 +15,11 @@ import { useRouter } from "next/navigation";
 
 const { Option } = Select;
 
-export default function CreateTaskModal() {
+export default function CreateTaskModal({
+  onTaskCreated,
+}: {
+  onTaskCreated: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [statuses, setStatuses] = useState([]);
@@ -53,6 +57,7 @@ export default function CreateTaskModal() {
       setOpen(false);
       form.resetFields();
       router.refresh();
+      onTaskCreated();
       message.success("Tarea creada exitosamente");
     } catch (err) {
       console.error(err);
